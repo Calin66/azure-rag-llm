@@ -1,0 +1,72 @@
+[
+  {
+    "id": "1984",
+    "title": "1984",
+    "summary_short": "A dystopian tale of total surveillance, propaganda, and control.",
+    "summary_long": "George Orwell's '1984' portrays a totalitarian regime that weaponizes surveillance, propaganda, and language. Winston Smith questions the official narrative; his search for truth collides with the state's machinery of control.",
+    "themes": ["freedom", "control", "surveillance", "truth"]
+  },
+  {
+    "id": "hobbit",
+    "title": "The Hobbit",
+    "summary_short": "A reluctant hobbit joins a quest to reclaim dwarven treasure guarded by a dragon.",
+    "summary_long": "Bilbo Baggins is thrust into adventure with dwarves to reclaim Erebor from Smaug. On the road, Bilbo discovers courage and cleverness while forging friendships.",
+    "themes": ["friendship", "adventure", "courage", "fantasy"]
+  },
+  {
+    "id": "tkam",
+    "title": "To Kill a Mockingbird",
+    "summary_short": "A child's-eye view of racial injustice in the American South.",
+    "summary_long": "Scout Finch narrates as her father Atticus defends a Black man unjustly accused. Themes of empathy, moral courage, and loss of innocence run throughout.",
+    "themes": ["justice", "empathy", "racism", "coming-of-age"]
+  },
+  {
+    "id": "lotr-fotr",
+    "title": "The Lord of the Rings: The Fellowship of the Ring",
+    "summary_short": "A quest to destroy the One Ring; fellowship, sacrifice, and the pull of darkness.",
+    "summary_long": "A disparate fellowship undertakes a quest to destroy the One Ring before darkness consumes Middle‑earth. Loyalty, sacrifice, and the seduction of power drive this epic.",
+    "themes": ["friendship", "adventure", "good vs evil", "sacrifice"]
+  },
+  {
+    "id": "hp1",
+    "title": "Harry Potter and the Sorcerer's Stone",
+    "summary_short": "An orphan discovers he is a wizard and finds belonging at Hogwarts.",
+    "summary_long": "The first HP book introduces a world of magic, friendship, and moral choices as Harry confronts the shadow of Voldemort.",
+    "themes": ["friendship", "magic", "belonging", "courage"]
+  },
+  {
+    "id": "gatsby",
+    "title": "The Great Gatsby",
+    "summary_short": "A glittering Jazz Age tragedy about longing and reinvention.",
+    "summary_long": "Through Nick Carraway's eyes, Fitzgerald explores longing, illusion, and the hollowness beneath wealth in Gatsby's pursuit of Daisy.",
+    "themes": ["ambition", "illusion", "wealth", "tragedy"]
+  },
+  {
+    "id": "bookthief",
+    "title": "The Book Thief",
+    "summary_short": "Narrated by Death, a German girl steals books and hope during WWII.",
+    "summary_long": "Liesel Meminger steals books and shares them with neighbors and a hidden Jewish refugee, showing resilience in brutal times.",
+    "themes": ["war", "friendship", "loss", "hope"]
+  },
+  {
+    "id": "kite",
+    "title": "The Kite Runner",
+    "summary_short": "A story of betrayal and redemption spanning Kabul to the US.",
+    "summary_long": "Amir and Hassan grow up in 1970s Kabul. A moment of betrayal haunts Amir into adulthood and drives a difficult path to redemption.",
+    "themes": ["friendship", "guilt", "redemption", "war"]
+  },
+  {
+    "id": "namewind",
+    "title": "The Name of the Wind",
+    "summary_short": "Kvothe recounts his path from gifted child to legendary arcanist.",
+    "summary_long": "Kvothe, a gifted musician and arcanist, recounts his life—from traveling troupe to university—building a hero's myth.",
+    "themes": ["fantasy", "talent", "identity", "storytelling"]
+  },
+  {
+    "id": "light",
+    "title": "All the Light We Cannot See",
+    "summary_short": "A blind French girl and a German boy cross paths in WWII.",
+    "summary_long": "Parallel lives converge in occupied France in a luminous story about beauty, survival, and moral complexity.",
+    "themes": ["war", "survival", "humanity", "fate"]
+  }
+]

@@ -1,0 +1,38 @@
+import { AzureOpenAI } from 'openai'
+import { SearchClient, SearchIndexClient, AzureKeyCredential } from '@azure/search-documents'
+
+export function getAzureProvider() {
+  return (process.env.AZURE_PROVIDER || 'openai').toLowerCase()
+}
+
+export function createLLM() {
+  const provider = getAzureProvider()
+  if (provider === 'foundry') {
+    const endpoint = process.env.AZURE_AIFOUNDRY_ENDPOINT!
+    const apiKey = process.env.AZURE_AIFOUNDRY_API_KEY || process.env.AZURE_INFERENCE_CREDENTIAL || process.env.AZURE_OPENAI_API_KEY!
+    const apiVersion = process.env.AZURE_AIFOUNDRY_API_VERSION || '2024-10-21'
+    return new AzureOpenAI({ endpoint, apiKey, apiVersion })
+  }
+  // default: Azure OpenAI classic endpoint
+  const endpoint = process.env.AZURE_OPENAI_ENDPOINT!
+  const apiKey = process.env.AZURE_OPENAI_API_KEY!
+  const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview'
+  return new AzureOpenAI({ endpoint, apiKey, apiVersion })
+}
+
+export function getDeployment(kind: 'chat' | 'embed') {
+  const provider = getAzureProvider()
+  if (provider === 'foundry') {
+    return kind === 'chat' ? process.env.AZURE_AIFOUNDRY_DEPLOYMENT_CHAT! : process.env.AZURE_AIFOUNDRY_DEPLOYMENT_EMBED!
+  }
+  return kind === 'chat' ? process.env.AZURE_OPENAI_DEPLOYMENT_CHAT! : process.env.AZURE_OPENAI_DEPLOYMENT_EMBED!
+}
+
+export function createSearchClients() {
+  const endpoint = process.env.AZURE_SEARCH_ENDPOINT!
+  const key = process.env.AZURE_SEARCH_API_KEY!
+  return {
+    search: new SearchClient(endpoint, process.env.AZURE_SEARCH_INDEX!, new AzureKeyCredential(key)),
+    index: new SearchIndexClient(endpoint, new AzureKeyCredential(key)),
+  }
+}
