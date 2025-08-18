@@ -15,18 +15,37 @@ const SYSTEM_PROMPT =
   '3) THEN, CALL the function get_summary_by_title with the exact title you chose.\n' +
   'Rules:\n- Only choose a title that appears in the CONTEXT.\n- If the request is vague, ask one clarifying question, but still propose a best guess.\n- Keep the recommendation concise; the tool output will provide the long summary.'
 
+// Moderation (Azure AI Content Safety, REST SDK)
 async function moderate(text: string) {
-  const endpoint = process.env.CONTENT_SAFETY_ENDPOINT
-  const key = process.env.CONTENT_SAFETY_KEY
-  if (!endpoint || !key) return { allowed: true }
-  const client = createClient(endpoint, new AzureKeyCredential(key))
-  const res = await client.path('/contentsafety/text:analyze').post({
-    body: { text, categories: ['Hate', 'SelfHarm', 'Sexual', 'Violence'], outputType: 'FourSeverityLevels' }
-  })
-  if (res.status !== '200') return { allowed: true }
-  const d: any = res.body
-  const max = Math.max(d?.hateResult?.severity||0, d?.selfHarmResult?.severity||0, d?.sexualResult?.severity||0, d?.violenceResult?.severity||0)
-  return { allowed: max < 3 }
+  const endpoint = process.env.CONTENT_SAFETY_ENDPOINT;
+  const key = process.env.CONTENT_SAFETY_KEY;
+  if (!endpoint || !key) return { allowed: true as const };
+
+  const client = createClient(endpoint, new AzureKeyCredential(key));
+
+  const res = await client.path("/text:analyze").post({
+    body: {
+      text,
+      categories: ["Hate", "SelfHarm", "Sexual", "Violence"],
+      outputType: "FourSeverityLevels",
+    },
+    contentType: "application/json",
+  });
+
+  // Normalize status to a number, because the SDK types res.status as a string literal "200"
+  const status = Number(res.status as unknown);
+  if (status !== 200) return { allowed: true as const };
+
+  const data: any = res.body;
+  const maxSeverity = Math.max(
+    data?.hateResult?.severity ?? 0,
+    data?.selfHarmResult?.severity ?? 0,
+    data?.sexualResult?.severity ?? 0,
+    data?.violenceResult?.severity ?? 0
+  );
+
+  // Block when severity is High (>= 3)
+  return { allowed: maxSeverity < 3 } as const;
 }
 
 export async function POST(req: NextRequest) {
