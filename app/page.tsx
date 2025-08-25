@@ -37,8 +37,15 @@ export default function Page() {
   const recoRef = useRef<any>(null)               // current SpeechRecognizer
   const tokenRef = useRef<{ token: string; region: string; expiresAt: number } | null>(null)
 
-  const [deviceId, setDeviceId] = useState<string | undefined>(undefined);
-  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [deviceId, setDeviceId] = useState<string | undefined>(undefined)
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
+
+  const [coverUrl, setCoverUrl] = useState<string | null>(null)
+  const [imgLoading, setImgLoading] = useState(false)
+
+  function pickDoc() {
+    return hits?.[0] ?? null
+  }
 
   useEffect(() => {
     async function load() {
@@ -77,12 +84,34 @@ export default function Page() {
     }
   }, [])
 
-  // ====== Chat (RAG) ======
+  // one-button handler — uses the user's original prompt (q)
+  async function generateImageFromQuery(type: 'scene' | 'theme') {
+    const query = q.trim()
+    if (!query) return
+    setImgLoading(true)
+    try {
+      const res = await fetch('/api/image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, kind: type, style: 'illustration' }),
+      })
+      const data = await res.json()
+      if (data?.image) setCoverUrl(data.image)       // PNG data URL from DALL·E
+      // else do nothing — no alerts, per your requirement
+    } finally {
+      setImgLoading(false)
+    }
+  }
+
+
+
+  // Chat (RAG)
   async function doChat(textOverride?: string) {
     const query = (textOverride ?? q).trim()
     if (!query) return
     setLoading(true)
     setAnswer('')
+    setHits([])
     LOG.info('CHAT start ->', query)
     console.time('[SPEECH] chat')
     try {
@@ -334,6 +363,7 @@ export default function Page() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Ask for a book..."
               onFocus={() => LOG.info('INPUT focus')}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !(loading || imgLoading || listening)) { e.preventDefault(); doChat() } }}
               onBlur={() => LOG.info('INPUT blur')}
             />
             {/* Live partial transcript while speaking */}
@@ -348,19 +378,20 @@ export default function Page() {
           <div className="flex gap-2">
             <button
               onClick={() => doChat()}
-              disabled={loading}
+              disabled={loading || imgLoading || listening}
               className={clsx(
-                'rounded-xl px-4 py-3 text-white',
-                loading ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'
+                'rounded-xl px-4 py-3 text-white disabled:cursor-not-allowed',
+                (loading || imgLoading || listening) ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'
               )}
             >
               Ask
             </button>
             <button
               onClick={toggleMic}
+              disabled={loading || imgLoading || listening}
               className={clsx(
                 'rounded-xl px-4 py-3',
-                listening ? 'bg-red-100 text-red-700' : 'bg-gray-100'
+                (listening) ? 'bg-red-100 text-red-700' : 'bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
               )}
               title={listening ? 'Stop microphone' : 'Start microphone'}
             >
@@ -387,11 +418,23 @@ export default function Page() {
         {answer && (
           <div className="mt-6 rounded-xl border bg-white p-4 shadow">
             <div className="prose prose-sm max-w-none whitespace-pre-wrap">{answer}</div>
-            <div className="mt-3">
-              <button onClick={() => ttsSpeak(answer)} className="rounded-lg bg-gray-100 px-3 py-2">
-                🔊 Listen
-              </button>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button onClick={() => ttsSpeak(answer)} className="rounded-lg bg-gray-100 px-3 py-2">🔊 Listen</button>
+              <button onClick={()=>generateImageFromQuery('scene')} disabled={loading || imgLoading || listening} className={clsx("rounded-lg bg-gray-100 px-3 py-2", 'disabled:opacity-50 disabled:cursor-not-allowed')}>🖼️ Scene</button>
+              <button onClick={()=>generateImageFromQuery('theme')} disabled={loading || imgLoading || listening} className={clsx("rounded-lg bg-gray-100 px-3 py-2", 'disabled:opacity-50 disabled:cursor-not-allowed')}>🖼️ Theme</button>
+
             </div>
+
+            {coverUrl && (
+              <div className="mt-4">
+                <img
+                  src={coverUrl}
+                  alt="AI generated illustration"
+                  className="w-full max-w-lg rounded-lg border shadow-sm"
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
