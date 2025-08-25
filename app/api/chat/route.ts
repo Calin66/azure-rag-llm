@@ -19,7 +19,7 @@ const SYSTEM_PROMPT =
 async function moderate(text: string) {
   const endpoint = process.env.CONTENT_SAFETY_ENDPOINT;
   const key = process.env.CONTENT_SAFETY_KEY;
-  if (!endpoint || !key) return { allowed: false as const };
+  if (!endpoint || !key) return { allowed: false };
 
   const client = createClient(endpoint, new AzureKeyCredential(key));
 
@@ -34,7 +34,8 @@ async function moderate(text: string) {
 
   // Normalize status to a number, because the SDK types res.status as a string literal "200"
   const status = Number(res.status as unknown);
-  if (status !== 200) return { allowed: false as const };
+
+  if (status !== 200) return { allowed: false };
 
   const data: any = res.body;
   const maxSeverity = Math.max(
@@ -45,7 +46,7 @@ async function moderate(text: string) {
   );
 
   // Block when severity is High (>= 3)
-  return { allowed: maxSeverity >= 3 };
+  return { allowed: maxSeverity < 3 };
 }
 
 export async function POST(req: NextRequest) {
