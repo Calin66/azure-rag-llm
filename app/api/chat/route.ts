@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createLLM, getDeployment, createSearchClients } from '@/lib/azure'
-import { getLongSummaryByTitle, vectorSearchWithVector } from '@/lib/search'
+import { BookDoc, getLongSummaryByTitle, vectorSearchWithVector } from '@/lib/search'
 import createClient from '@azure-rest/ai-content-safety'
 import { AzureKeyCredential } from '@azure/core-auth'
 
@@ -19,7 +19,7 @@ const SYSTEM_PROMPT =
 async function moderate(text: string) {
   const endpoint = process.env.CONTENT_SAFETY_ENDPOINT;
   const key = process.env.CONTENT_SAFETY_KEY;
-  if (!endpoint || !key) return { allowed: true as const };
+  if (!endpoint || !key) return { allowed: false as const };
 
   const client = createClient(endpoint, new AzureKeyCredential(key));
 
@@ -34,7 +34,7 @@ async function moderate(text: string) {
 
   // Normalize status to a number, because the SDK types res.status as a string literal "200"
   const status = Number(res.status as unknown);
-  if (status !== 200) return { allowed: true as const };
+  if (status !== 200) return { allowed: false as const };
 
   const data: any = res.body;
   const maxSeverity = Math.max(
@@ -45,7 +45,7 @@ async function moderate(text: string) {
   );
 
   // Block when severity is High (>= 3)
-  return { allowed: maxSeverity < 3 } as const;
+  return { allowed: maxSeverity >= 3 };
 }
 
 export async function POST(req: NextRequest) {
@@ -61,6 +61,9 @@ export async function POST(req: NextRequest) {
 
     // RAG: embed query then vector KNN in Azure Search
     const emb = await llm.embeddings.create({ model: getDeployment('embed'), input: q })
+    if (!emb.data || !emb.data[0] || !emb.data[0].embedding) {
+      return NextResponse.json({ error: 'Embedding data not found.' }, { status: 500 })
+    }
     const vector = emb.data[0].embedding as number[]
     const hits = await vectorSearchWithVector(search, vector, q, 4)
 
@@ -80,6 +83,9 @@ ${context}` },
     ] as const
 
     const first = await llm.chat.completions.create({ model: getDeployment('chat'), messages: messages as any, tools: tools as any, tool_choice: 'auto', temperature: 0.4 })
+    if (!first.choices || !first.choices[0]) {
+      return NextResponse.json({ error: 'No choices returned from LLM.' }, { status: 500 })
+    }
     const msg = first.choices[0].message as any
     const toolCalls = msg.tool_calls as any[] | undefined
 
@@ -94,7 +100,8 @@ ${context}` },
         }
       }
       const follow = await llm.chat.completions.create({ model: getDeployment('chat'), messages: [...(messages as any), ...toolMsgs], temperature: 0.4 })
-      return NextResponse.json({ hits, answer: follow.choices[0].message.content })
+      const followChoice = follow.choices && follow.choices[0] && follow.choices[0].message ? follow.choices[0].message.content : 'No answer returned from LLM.'
+      return NextResponse.json({ hits, answer: followChoice })
     }
 
     return NextResponse.json({ hits, answer: msg.content })

@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
     const { search } = createSearchClients()
     const llm = createLLM()
     const emb = await llm.embeddings.create({ model: getDeployment('embed'), input: q })
+    if (!emb.data || !emb.data[0]?.embedding) {
+      return NextResponse.json({ error: 'Embedding data not found' }, { status: 500 })
+    }
     const vector = emb.data[0].embedding as number[]
     const hits = await vectorSearchWithVector(search, vector, q, 5)
     return NextResponse.json({ hits })

@@ -1,5 +1,6 @@
 import { AzureOpenAI } from 'openai'
 import { SearchClient, SearchIndexClient, AzureKeyCredential } from '@azure/search-documents'
+import { BookDoc } from './search'
 
 export function getAzureProvider() {
   return (process.env.AZURE_PROVIDER || 'openai').toLowerCase()
@@ -32,7 +33,7 @@ export function createSearchClients() {
   const endpoint = process.env.AZURE_SEARCH_ENDPOINT!
   const key = process.env.AZURE_SEARCH_API_KEY!
   return {
-    search: new SearchClient(endpoint, process.env.AZURE_SEARCH_INDEX!, new AzureKeyCredential(key)),
+    search: new SearchClient<BookDoc>(endpoint, process.env.AZURE_SEARCH_INDEX!, new AzureKeyCredential(key)),
     index: new SearchIndexClient(endpoint, new AzureKeyCredential(key)),
   }
 }

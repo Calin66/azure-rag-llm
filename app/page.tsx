@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 
-// ===== Verbose logging helpers =====
+// Verbose logging helpers
 const LOG = {
   info: (...a: any[]) => console.log('[SPEECH]', ...a),
   warn: (...a: any[]) => console.warn('[SPEECH]', ...a),
@@ -57,7 +57,7 @@ export default function Page() {
   }, []);
 
 
-  // ====== Diagnostics on mount ======
+  // Diagnostics on mount
   useEffect(() => {
     LOG.info('Page mounted at', stamp(), '| env:', process.env.NODE_ENV, '| secureContext:', (typeof window !== 'undefined' ? (window.isSecureContext ? 'yes' : 'no') : 'n/a'))
     if (typeof navigator !== 'undefined' && navigator.mediaDevices) {
@@ -156,7 +156,7 @@ export default function Page() {
     return speechConfig
   }
 
-  // ====== Speech: STT (continuous with interim results) ======
+  // Speech: STT
   async function startMic() {
     LOG.info('startMic() called. listening=', listening)
     if (listening) return
@@ -275,7 +275,7 @@ export default function Page() {
     }
   }
 
-  // ====== TTS (with logs) ======
+  // TTS
   async function ttsSpeak(text: string) {
     if (!text) return
     const sdk = await ensureSDK()
