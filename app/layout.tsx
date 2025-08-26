@@ -1,4 +1,3 @@
-// app/layout.tsx
 import './globals.css';
 
 export const metadata = { title: 'Azure RAG Librarian', description: 'AI Search + Azure OpenAI + Speech' };

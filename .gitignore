@@ -55,7 +55,3 @@ coverage/
 *.pid.lock
 *.seed
 *.tgz
-
-# Optional: ignore local data caches (uncomment if you generate any)
-# data/*.cache
-# data/*.tmp
