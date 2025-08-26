@@ -228,7 +228,7 @@ export default function Page() {
 
       recognizer.recognized = async (_s: any, e: any) => {
         const reason = e?.result?.reason
-        const text = e?.result?.text || ''
+        const text = e?.result?.text || ''  
         LOG.info('RECOGNIZED. reason=', reason, 'text=', JSON.stringify(text))
         if (reason === sdk.ResultReason.RecognizedSpeech && text.trim()) {
           const finalText = text.trim()
@@ -388,7 +388,7 @@ export default function Page() {
             </button>
             <button
               onClick={toggleMic}
-              disabled={loading || imgLoading || listening}
+              disabled={loading || imgLoading}
               className={clsx(
                 'rounded-xl px-4 py-3',
                 (listening) ? 'bg-red-100 text-red-700' : 'bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
