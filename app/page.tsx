@@ -84,10 +84,12 @@ export default function Page() {
     }
   }, [])
 
-  // one-button handler — uses the user's original prompt (q)
+  const [imgMsg,   setImgMsg]   = useState<string | null>(null)
+
   async function generateImageFromQuery(type: 'scene' | 'theme') {
     const query = q.trim()
     if (!query) return
+    setImgMsg(null)
     setImgLoading(true)
     try {
       const res = await fetch('/api/image', {
@@ -96,14 +98,20 @@ export default function Page() {
         body: JSON.stringify({ query, kind: type, style: 'illustration' }),
       })
       const data = await res.json()
-      if (data?.image) setCoverUrl(data.image)       // PNG data URL from DALL·E
-      // else do nothing — no alerts, per your requirement
+      console.log('[IMG]', res.status, data)
+      if (data?.ok && data?.image) {
+        setCoverUrl(data.image)
+      } else {
+        setCoverUrl(null)
+        setImgMsg(data?.message || 'Image request was blocked. Try a safer, more generic prompt.')
+      }
+    } catch {
+      setCoverUrl(null)
+      setImgMsg('Image generation failed. Please try again.')
     } finally {
       setImgLoading(false)
     }
   }
-
-
 
   // Chat (RAG)
   async function doChat(textOverride?: string) {
@@ -425,6 +433,12 @@ export default function Page() {
               <button onClick={()=>generateImageFromQuery('theme')} disabled={loading || imgLoading || listening} className={clsx("rounded-lg bg-gray-100 px-3 py-2", 'disabled:opacity-50 disabled:cursor-not-allowed')}>🖼️ Theme</button>
 
             </div>
+
+            {imgMsg && (
+              <div className="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" role="status" aria-live="polite">
+                {imgMsg}
+              </div>
+            )}
 
             {coverUrl && (
               <div className="mt-4">
