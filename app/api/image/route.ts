@@ -1,4 +1,3 @@
-// app/api/image/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createLLM, getDeployment } from '@/lib/azure'
 
