@@ -84,4 +84,4 @@ npm run dev  # http://localhost:3000
 - 🖼️ Scene/Theme: uses your original prompt to produce a scene/theme image via DALL·E 3 (Foundry).
 
 
-For now, you can find the application deployed here: https://azure-rag-llm.vercel.app/.
+For now, you can find the application deployed here: https://azure-rag-llm.vercel.app/. The microphone speech to text functionality works, but is dependent on the microphone you use, microphones with "communications" in their name or other default ones don't work because they don't register sound unless in a call or some specific environment that I didn't replicate.
